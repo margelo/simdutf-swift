@@ -1,0 +1,165 @@
+{
+  "date": "2026-09-30",
+  "hardware": {
+    "cpu": "Apple M2 Pro",
+    "model_identifier": "Mac14,9",
+    "architecture": "arm64",
+    "physical_cores": 12,
+    "logical_cores": 12,
+    "performance_cores": 8,
+    "efficiency_cores": 4,
+    "memory_bytes": 34359738368,
+    "memory_gib": 32
+  },
+  "operating_system": {
+    "name": "macOS",
+    "version": "27.0",
+    "build": "26A428"
+  },
+  "toolchain": {
+    "xcode_version": "27.0",
+    "xcode_build": "27A266a",
+    "developer_directory": "/Applications/Xcode.app/Contents/Developer",
+    "swift_version": "6.4",
+    "swift_build": "swiftlang-6.4.0.34.1",
+    "swift_driver_version": "1.168.6",
+    "swift_embedded_clang_build": "clang-2100.3.34.1",
+    "cpp_compiler": "Apple Clang",
+    "cpp_compiler_version": "21.0.0",
+    "cpp_compiler_build": "clang-2100.3.34.2",
+    "swift_package_manager": "Swift Package Manager - Swift 6.4.0-dev",
+    "swiftpm_build_system": "swiftbuild",
+    "swiftpm_build_system_description": "Swift Build was the active default backend in the measured builds; reproduction commands select it explicitly.",
+    "macos_sdk_version": "27.0",
+    "macos_sdk_build": "26A425"
+  },
+  "package": {
+    "name": "simdutf-swift",
+    "url": "https://github.com/margelo/simdutf-swift.git",
+    "version": "1.0.1",
+    "revision": "4f98b5b16c8b1d9c7d77d88395c2a50b74be0607",
+    "resolution_kind": "remoteSourceControl",
+    "traits": [
+      "UTF8",
+      "UTF16",
+      "UTF32",
+      "ASCII"
+    ],
+    "disabled_features": [
+      "Latin1",
+      "Base64",
+      "DetectEncoding"
+    ],
+    "upstream": {
+      "name": "simdutf",
+      "url": "https://github.com/simdutf/simdutf.git",
+      "version": "9.2.1",
+      "revision": "dc3f7a8fa291f2ce793c7b0ddd458f4e67542f14"
+    },
+    "active_backend": {
+      "name": "arm64",
+      "description": "ARM NEON",
+      "forced_implementation_environment": null,
+      "verification": "A temporary C++ metadata helper linked each exact CSimdUTF.o, warmed validate_utf8, and queried get_active_implementation(). Both builds selected the same backend."
+    }
+  },
+  "builds": {
+    "default": {
+      "configuration": "release",
+      "scratch_path": "<scratch>/default",
+      "cpp_standard": "c++17",
+      "observed_cpp_optimization_flags_in_order": [
+        "-Os"
+      ],
+      "effective_cpp_optimization": "-Os",
+      "swift_flags": [
+        "-O",
+        "-whole-module-optimization"
+      ],
+      "command": "DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun swift build --build-system swiftbuild -c release --scratch-path \"$SCRATCH/default\"",
+      "executable": "<scratch>/default/out/Products/Release/UnicodeBench"
+    },
+    "o3": {
+      "configuration": "release",
+      "scratch_path": "<scratch>/o3",
+      "cpp_standard": "c++17",
+      "observed_cpp_optimization_flags_in_order": [
+        "-Os",
+        "-O3"
+      ],
+      "effective_cpp_optimization": "-O3",
+      "swift_flags": [
+        "-O",
+        "-whole-module-optimization"
+      ],
+      "command": "DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun swift build --build-system swiftbuild -c release --scratch-path \"$SCRATCH/o3\" -Xcxx -O3",
+      "executable": "<scratch>/o3/out/Products/Release/UnicodeBench"
+    },
+    "optimization_verification": "C++ response files and cached Swift driver tasks were inspected for both builds. The final C++ optimization flag takes precedence. Swift remains -O in the O3 comparison.",
+    "path_placeholders": "Private build paths are redacted. Set SCRATCH to a writable build directory; <scratch> denotes its path. Build commands run from Benchmarks/StringAPIs."
+  },
+  "benchmark": {
+    "scope": "Released high-level String constructors and temporary contiguous UTF-16/UTF-32 buffer APIs; not isolated allocation-free transcoder throughput.",
+    "working_directory": "Benchmarks/StringAPIs",
+    "samples_per_case_per_repeat": 11,
+    "target_sample_duration_ms": 8,
+    "repeats_per_configuration": 2,
+    "timing_unit": "nanoseconds per operation",
+    "timing_clock": "DispatchTime.now().uptimeNanoseconds",
+    "warmup_iterations_per_variant": 16,
+    "iteration_calibration": "Each variant is calibrated independently toward an 8 ms sample, accepting at least half the target during calibration; capped at 1,000,000 iterations.",
+    "variant_order": "Order rotates between samples; the second repeat uses --reverse.",
+    "execution": "Single-threaded, repeated operations on the same prebuilt input for each case.",
+    "nominal_sizes_utf16_units": [
+      0,
+      7,
+      16,
+      128,
+      1024,
+      16384,
+      262144,
+      1048576
+    ],
+    "input_profiles": [
+      "ASCII",
+      "Latin",
+      "CJK",
+      "Emoji",
+      "Mixed",
+      "Malformed UTF-16",
+      "Malformed UTF-32"
+    ],
+    "outgoing_string_inputs": "Prebuilt native owned Swift Strings. Construction of the input, input-array preparation, and full-content correctness checks occur outside timing.",
+    "constructor_result_consumption": "Every constructed String is materialized as contiguous UTF-8 before the opaque sink, including Foundation-backed constructor results.",
+    "sink": "A separately compiled noinline C function with an opaque memory barrier, without LTO; it neither scans nor retains the buffer.",
+    "allocation_costs": "String result creation and temporary/Array output storage are included in the respective API measurements.",
+    "correctness": "491 full-content checks outside timing per process, covering package and baseline outputs, malformed UTF-16/UTF-32 replacement, and embedded nulls.",
+    "throughput_denominator": "Input bytes: UTF-16 code-unit count times 2, UTF-32 count times 4, or source String/UTF-8 buffer byte count.",
+    "utf8_constructor_control": "String(decodingUTF8:) forwards to Swift String(decoding:as:); this is a same-decoder control, not a SIMD transcoding claim.",
+    "run_commands_per_configuration": [
+      "<executable> 11 8",
+      "<executable> 11 8 --reverse"
+    ],
+    "completed_run_order": [
+      "default-run1",
+      "o3-run1",
+      "o3-run2",
+      "default-run2"
+    ],
+    "full_content_checks_per_process": 491,
+    "samples_total_per_configuration": 15004
+  },
+  "artifacts": {
+    "sha256": {
+      "Package.swift": "60fc133a62b175140ed5487e5de8801a87f24a337025858eeb95a81374e11609",
+      "Package.resolved": "dcf1ae5aa75ca6f2070a584febcb6a0cf81dc634319669baa3d5413e5ed9b865",
+      "Sources/UnicodeBench/main.swift": "5e1bf5b498869299bc8864a819c069850c84e44e9324b8f2ab20efaec490044d",
+      "Sources/BenchmarkSupport/BenchmarkSupport.c": "e9c61e9d6caabb1dafba454ae0e39d0ba2d3441eb8ea37f4317e3b6060c77bc4",
+      "Sources/BenchmarkSupport/include/BenchmarkSupport.h": "e5a754655996beaeed9567cc4a76f331bfd8807c0be7be2ad132c91e63395912"
+    },
+    "binary_sha256": {
+      "default": "80c72dcf3c68fd8a6e7504f57bcbf7dddd15cd7ada6677440427677ad0276b43",
+      "o3": "704174892162919f031a03f277d94e74a870f4e755be36023922c8e2c9de0129"
+    }
+  }
+}

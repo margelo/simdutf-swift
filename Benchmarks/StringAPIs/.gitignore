@@ -1,0 +1,7 @@
+.build/
+.swiftpm/
+__pycache__/
+.DS_Store
+!Package.resolved
+Results/local/
+Results/*/summary.json
