@@ -236,10 +236,9 @@ the resulting commit. Review the diff and checks before merging. Incompatible
 upstream API changes can still require a binding-generator change; CI should
 flag those rather than silently accepting them.
 
-Dependabot's update jobs can run while normal GitHub Actions are disabled.
-The companion workflow and CI require Actions to be enabled for this repository
-by the Margelo organization policy. Until then, upstream PRs need manual
-regeneration and local checks:
+Dependabot's update jobs run separately from GitHub Actions. If an organization
+policy disables Actions, the companion workflow and CI cannot run; upstream PRs
+then need manual regeneration and local checks:
 
 ```sh
 git submodule update --init
