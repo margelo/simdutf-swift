@@ -160,6 +160,33 @@ to per-function feature guards. After updating to a tagged upstream release,
 run `python3 Scripts/generate-bindings.py`, inspect its feature conditions, and
 rerun the checks.
 
+## Upstream updates
+
+Dependabot checks the `simdutf` submodule every Monday at 09:00 Europe/Vienna and
+opens an update PR when a newer upstream revision is available. It keeps at most
+one update PR open. Each update remains pinned to a specific commit.
+
+The companion `Update simdutf bindings` workflow adds regenerated C/Swift bindings
+and refreshed upstream version information to Dependabot's PR, then starts CI on
+the resulting commit. Review the diff and checks before merging. Incompatible
+upstream API changes can still require a binding-generator change; CI should
+flag those rather than silently accepting them.
+
+Dependabot's update jobs can run while normal GitHub Actions are disabled.
+The companion workflow and CI require Actions to be enabled for this repository
+by the Margelo organization policy. Until then, upstream PRs need manual
+regeneration and local checks:
+
+```sh
+git submodule update --init
+git -C simdutf fetch --tags origin
+python3 Scripts/update-upstream.py
+python3 Scripts/test-features.py
+```
+
+Merging an upstream update changes `main`; publish a new package version tag
+when that update should become available to versioned SwiftPM consumers.
+
 ## License
 
 The package is MIT licensed. simdutf is available under either Apache 2.0 or MIT;

@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: "gitsubmodule"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Vienna"
+    allow:
+      - dependency-name: "simdutf"
+    open-pull-requests-limit: 1
+    commit-message:
+      prefix: "chore"

@@ -1,0 +1,98 @@
+name: Update simdutf bindings
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+    paths: [simdutf]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: upstream-bindings-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  regenerate:
+    if: >-
+      github.actor == 'dependabot[bot]' &&
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    env:
+      BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      HEAD_REF: ${{ github.event.pull_request.head.ref }}
+    steps:
+      - name: Check out trusted base
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate update before checking out PR contents
+        run: |
+          git fetch origin "$HEAD_SHA"
+          python3 - <<'PY'
+          import os
+          import subprocess
+
+          allowed = {
+              "simdutf",
+              "Sources/CSimdUTF/include/CSimdUTF.h",
+              "Sources/CSimdUTF/SimdUTFImplementation.cpp",
+              "Sources/CSimdUTF/SimdUTFCAPI.cpp",
+              "Sources/SimdUTF/SimdUTF.swift",
+              "README.md",
+              "NOTICE",
+          }
+          base, head = os.environ["BASE_SHA"], os.environ["HEAD_SHA"]
+          changed = subprocess.check_output([
+              "git", "diff", "--name-only", "--no-renames", "-z", base, head,
+          ]).decode().rstrip("\0").split("\0")
+          if "simdutf" not in changed or not set(changed) <= allowed:
+              raise SystemExit("PR must update only the simdutf Gitlink, generated bindings, and provenance")
+          for path in changed:
+              entry = subprocess.check_output(["git", "ls-tree", head, "--", path]).decode()
+              mode = "160000 commit " if path == "simdutf" else "100644 blob "
+              if not entry.startswith(mode):
+                  raise SystemExit(f"Unexpected file type or deletion: {path}")
+          PY
+          git checkout --detach "$HEAD_SHA"
+
+      # Scripts, .gitmodules, manifests, and workflows are unchanged from the
+      # trusted base. Upstream files are parsed as data; this job never builds them.
+      - name: Refresh bindings and provenance
+        run: |
+          git submodule update --init simdutf
+          git -C simdutf fetch --tags origin
+          python3 Scripts/update-upstream.py
+          git add -- Sources/CSimdUTF/include/CSimdUTF.h \
+            Sources/CSimdUTF/SimdUTFImplementation.cpp Sources/CSimdUTF/SimdUTFCAPI.cpp \
+            Sources/SimdUTF/SimdUTF.swift README.md NOTICE
+          if ! git diff --cached --quiet; then
+            git -c user.name='github-actions[bot]' \
+              -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+              commit -m "Regenerate bindings for upstream simdutf update"
+          fi
+
+      - name: Push generated changes and run CI
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh auth setup-git --hostname github.com
+          remote_head=$(git ls-remote --heads origin "refs/heads/$HEAD_REF" | cut -f1)
+          if [ "$remote_head" != "$HEAD_SHA" ]; then
+            echo "PR branch changed during regeneration; a newer run will handle it."
+            exit 0
+          fi
+          if [ "$(git rev-parse HEAD)" != "$HEAD_SHA" ]; then
+            git push origin "HEAD:refs/heads/$HEAD_REF"
+          fi
+          # GITHUB_TOKEN pushes do not automatically start unattended CI.
+          gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref "$HEAD_REF"
