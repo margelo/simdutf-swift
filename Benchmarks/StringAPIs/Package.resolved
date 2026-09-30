@@ -1,0 +1,15 @@
+{
+  "originHash" : "60fc133a62b175140ed5487e5de8801a87f24a337025858eeb95a81374e11609",
+  "pins" : [
+    {
+      "identity" : "simdutf-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/margelo/simdutf-swift.git",
+      "state" : {
+        "revision" : "4f98b5b16c8b1d9c7d77d88395c2a50b74be0607",
+        "version" : "1.0.1"
+      }
+    }
+  ],
+  "version" : 3
+}

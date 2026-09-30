@@ -1,0 +1,48 @@
+[
+  {
+    "mode": "default",
+    "repeat": 1,
+    "command": [
+      "<scratch>/default/out/Products/Release/UnicodeBench",
+      "11",
+      "8"
+    ],
+    "startedUnix": 1790786256.657372,
+    "elapsedSeconds": 75.2515618801117
+  },
+  {
+    "mode": "o3",
+    "repeat": 1,
+    "command": [
+      "<scratch>/o3/out/Products/Release/UnicodeBench",
+      "11",
+      "8"
+    ],
+    "startedUnix": 1790786331.9092789,
+    "elapsedSeconds": 75.56531524658203
+  },
+  {
+    "mode": "o3",
+    "repeat": 2,
+    "command": [
+      "<scratch>/o3/out/Products/Release/UnicodeBench",
+      "11",
+      "8",
+      "--reverse"
+    ],
+    "startedUnix": 1790786407.475075,
+    "elapsedSeconds": 74.8192310333252
+  },
+  {
+    "mode": "default",
+    "repeat": 2,
+    "command": [
+      "<scratch>/default/out/Products/Release/UnicodeBench",
+      "11",
+      "8",
+      "--reverse"
+    ],
+    "startedUnix": 1790786482.2947001,
+    "elapsedSeconds": 74.56383681297302
+  }
+]
