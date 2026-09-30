@@ -1,0 +1,44 @@
+// Map SwiftPM traits to upstream feature gates before including simdutf.
+#pragma once
+
+#ifdef SIMDUTF_SWIFT_ENABLE_UTF8
+#define SIMDUTF_FEATURE_UTF8 1
+#else
+#define SIMDUTF_FEATURE_UTF8 0
+#endif
+
+#ifdef SIMDUTF_SWIFT_ENABLE_UTF16
+#define SIMDUTF_FEATURE_UTF16 1
+#else
+#define SIMDUTF_FEATURE_UTF16 0
+#endif
+
+#ifdef SIMDUTF_SWIFT_ENABLE_UTF32
+#define SIMDUTF_FEATURE_UTF32 1
+#else
+#define SIMDUTF_FEATURE_UTF32 0
+#endif
+
+#ifdef SIMDUTF_SWIFT_ENABLE_ASCII
+#define SIMDUTF_FEATURE_ASCII 1
+#else
+#define SIMDUTF_FEATURE_ASCII 0
+#endif
+
+#ifdef SIMDUTF_SWIFT_ENABLE_LATIN1
+#define SIMDUTF_FEATURE_LATIN1 1
+#else
+#define SIMDUTF_FEATURE_LATIN1 0
+#endif
+
+#ifdef SIMDUTF_SWIFT_ENABLE_BASE64
+#define SIMDUTF_FEATURE_BASE64 1
+#else
+#define SIMDUTF_FEATURE_BASE64 0
+#endif
+
+#ifdef SIMDUTF_SWIFT_ENABLE_DETECT_ENCODING
+#define SIMDUTF_FEATURE_DETECT_ENCODING 1
+#else
+#define SIMDUTF_FEATURE_DETECT_ENCODING 0
+#endif

@@ -1,0 +1,11 @@
+The Swift package and compatibility helpers are Copyright (c) 2026 Margelo,
+licensed under the MIT License in LICENSE.
+
+simdutf is included as an unchanged Git submodule, pinned to v9.2.1:
+dc3f7a8fa291f2ce793c7b0ddd458f4e67542f14
+https://github.com/simdutf/simdutf
+
+simdutf is Copyright (c) 2021 The simdutf authors, available under either
+the Apache License 2.0 or the MIT License; see simdutf/LICENSE-APACHE and
+simdutf/LICENSE-MIT. Adapted/generated C bridge files retain this provenance
+and are distributed under upstream's MIT license.
