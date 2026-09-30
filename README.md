@@ -2,7 +2,8 @@
 
 [simdutf](https://github.com/simdutf/simdutf) provides SIMD-accelerated Unicode
 validation, transcoding, and Base64. This package makes its C API available to
-Swift with **compile-time feature selection through SwiftPM traits**.
+Swift, together with counted-buffer `String` conveniences, with **compile-time
+feature selection through SwiftPM traits**.
 
 ```swift
 import SimdUTF
@@ -29,7 +30,7 @@ Add the package and its `SimdUTF` product to your `Package.swift`:
 dependencies: [
     .package(
         url: "https://github.com/margelo/simdutf-swift.git",
-        from: "1.0.0",
+        from: "1.0.1",
         traits: ["UTF8", "ASCII"]
     ),
 ],
@@ -86,6 +87,67 @@ The traits select operations, rather than forcing a particular CPU instruction s
 
 ## API and buffers
 
+### Swift conveniences
+
+```swift
+import SimdUTF
+
+let units: [UInt16] = [0x0048, 0x0069, 0x0020, 0xD83D, 0xDE0A]
+var text = units.withUnsafeBufferPointer { String(decodingUTF16: $0) }
+units.withUnsafeBufferPointer { text.append(decodingUTF16: $0) }
+
+text.withUTF16 { buffer in
+    // Call a native API synchronously with buffer.baseAddress and buffer.count.
+}
+
+let valid = units.withUnsafeBufferPointer { String(validatingUTF16: $0) }
+```
+
+`decodingUTF8`, `decodingUTF16`, and `decodingUTF32` replace malformed input
+with U+FFFD. Their `validating…` counterparts return `nil` for malformed input.
+`uncheckedUTF8` and `uncheckedASCII` require already valid input and avoid a
+separate validation pass. All initializers copy their input and preserve embedded
+NULs; buffers need no terminator. UTF-16 and UTF-32 use native-endian units.
+Appends have the same decoding semantics as their matching initializer.
+
+`withUTF16` and `withUTF32` provide temporary, counted buffers valid only for the
+closure. They return the closure's result and rethrow its errors. Do not save or
+return pointers into these buffers. The UTF-8 buffer's `withUTF16` additionally
+requires valid UTF-8 input; it can transcode bytes already borrowed from a string
+without copying that string first.
+
+| Swift convenience | Required traits |
+| --- | --- |
+| `String(decodingUTF8:)`, `String(validatingUTF8:)`, `String(uncheckedUTF8:)`, `append(decodingUTF8:)` | `UTF8` |
+| `String(decodingUTF16:)`, `String(validatingUTF16:)`, `append(decodingUTF16:)`, `String.withUTF16`, `UnsafeBufferPointer<UInt8>.withUTF16` | `UTF8`, `UTF16` |
+| `String(decodingUTF32:)`, `String(validatingUTF32:)`, `append(decodingUTF32:)`, `String.withUTF32`, `UnsafeBufferPointer<UInt8>.withUTF32` | `UTF8`, `UTF32` |
+| `String(validatingASCII:)`, `String(uncheckedASCII:)`, `append(uncheckedASCII:)`, `String.isASCII` | `ASCII` |
+| `String(decodingLatin1:)`, `append(decodingLatin1:)`, `String.latin1Encoded()` | `UTF8`, `Latin1` |
+| `UnsafeBufferPointer<UInt8>.base64EncodedString(options:)`, `String.base64DecodedBytes(options:lastChunkHandling:)` | `Base64` |
+| `UnsafeBufferPointer<UInt8>.detectedUnicodeEncodings`, `UnicodeEncoding` | `DetectEncoding` |
+
+Latin-1 decoding accepts every byte; encoding returns `nil` if a scalar cannot
+be represented without loss. Base64 decoding returns `nil` for invalid input and
+supports the existing `SIMDUTF_BASE64_*` and `SIMDUTF_LAST_CHUNK_*` options:
+
+```swift
+let bytes: [UInt8] = [0, 1, 2, 255]
+let encoded = bytes.withUnsafeBufferPointer {
+    $0.base64EncodedString(options: SIMDUTF_BASE64_URL)
+}
+let decoded = encoded.base64DecodedBytes(options: SIMDUTF_BASE64_URL)
+```
+
+`detectedUnicodeEncodings` returns an `OptionSet` of `.utf8`, `.utf16LE`,
+`.utf16BE`, `.utf32LE`, and `.utf32BE` candidates. A BOM takes precedence;
+otherwise multiple encodings can match. Detection does not establish the
+intended encoding or validate a payload after a BOM.
+
+These conveniences require version `1.0.1` or later. Version `1.0.0` provides
+the low-level functions below.
+
+### Low-level functions
+
 The public functions retain upstream's C names, such as
 `simdutf_validate_utf8`, `simdutf_convert_utf8_to_utf16`,
 `simdutf_convert_utf32_to_utf8`, and `simdutf_base64_to_binary`.
@@ -118,7 +180,7 @@ memory. Their input and output must not overlap except for exact in-place repair
 The conversion helpers require `UTF8` and `UTF16`; validation and repair require
 `UTF16`.
 
-This package exposes upstream's C API and the compatibility helpers. C++-only
+This package exposes upstream's C API, compatibility helpers, and Swift conveniences. C++-only
 APIs, including experimental atomic Base64 operations, are outside the Swift API.
 
 ## Optimization and distribution
@@ -156,7 +218,8 @@ python3 Scripts/test-features.py
 The feature checks exercise representative subsets, check that disabled native
 symbols are absent, and verify that disabled Swift APIs cannot be called.
 The upstream submodule remains unchanged; generated bridge files adapt its C API
-to per-function feature guards. After updating to a tagged upstream release,
+to per-function feature guards. Handwritten Swift conveniences are kept in
+separate files and survive regeneration. After updating to a tagged upstream release,
 run `python3 Scripts/generate-bindings.py`, inspect its feature conditions, and
 rerun the checks.
 
@@ -172,10 +235,9 @@ the resulting commit. Review the diff and checks before merging. Incompatible
 upstream API changes can still require a binding-generator change; CI should
 flag those rather than silently accepting them.
 
-Dependabot's update jobs can run while normal GitHub Actions are disabled.
-The companion workflow and CI require Actions to be enabled for this repository
-by the Margelo organization policy. Until then, upstream PRs need manual
-regeneration and local checks:
+Dependabot's update jobs run separately from GitHub Actions. If an organization
+policy disables Actions, the companion workflow and CI cannot run; upstream PRs
+then need manual regeneration and local checks:
 
 ```sh
 git submodule update --init
