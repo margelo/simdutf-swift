@@ -9,7 +9,7 @@ extension String {
     }
     self = bytes.baseAddress!.withMemoryRebound(to: CChar.self, capacity: bytes.count) { input in
       let capacity = simdutf_utf8_length_from_latin1(input, bytes.count)
-      return String(unsafeUninitializedCapacity: capacity) { output in
+      return stringFromSimdUTF(capacity: capacity) { output in
         output.baseAddress!.withMemoryRebound(to: CChar.self, capacity: output.count) {
           simdutf_convert_latin1_to_utf8(input, bytes.count, $0)
         }

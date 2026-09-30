@@ -123,7 +123,7 @@ extension String {
         return stringCopyingValidUTF8(UnsafeBufferPointer(start: output.baseAddress, count: count))
       }
     } else {
-      self = String(unsafeUninitializedCapacity: units.count * 3) { output in
+      self = stringFromSimdUTF(capacity: units.count * 3) { output in
         simdutf_swift_utf16_to_utf8(units.baseAddress, units.count, output.baseAddress)
       }
     }
@@ -183,7 +183,7 @@ private func stringFromValidUTF32(_ units: UnsafeBufferPointer<UInt32>) -> Strin
       return stringCopyingValidUTF8(UnsafeBufferPointer(start: output.baseAddress, count: count))
     }
   }
-  return String(unsafeUninitializedCapacity: units.count * 4) { output in
+  return stringFromSimdUTF(capacity: units.count * 4) { output in
     output.baseAddress!.withMemoryRebound(to: CChar.self, capacity: output.count) {
       simdutf_convert_valid_utf32_to_utf8(units.baseAddress, units.count, $0)
     }

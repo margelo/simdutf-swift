@@ -10,7 +10,7 @@ extension UnsafeBufferPointer where Element == UInt8 {
     guard !isEmpty else { return "" }
     return baseAddress!.withMemoryRebound(to: CChar.self, capacity: count) { input in
       let capacity = simdutf_base64_length_from_binary(count, options)
-      return String(unsafeUninitializedCapacity: capacity) { output in
+      return stringFromSimdUTF(capacity: capacity) { output in
         output.baseAddress!.withMemoryRebound(to: CChar.self, capacity: output.count) {
           simdutf_binary_to_base64(input, count, $0, options)
         }
