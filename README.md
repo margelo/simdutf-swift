@@ -30,7 +30,7 @@ Add the package and its `SimdUTF` product to your `Package.swift`:
 dependencies: [
     .package(
         url: "https://github.com/margelo/simdutf-swift.git",
-        from: "1.0.0",
+        from: "1.0.1",
         traits: ["UTF8", "ASCII"]
     ),
 ],
@@ -143,9 +143,8 @@ let decoded = encoded.base64DecodedBytes(options: SIMDUTF_BASE64_URL)
 otherwise multiple encodings can match. Detection does not establish the
 intended encoding or validate a payload after a BOM.
 
-These conveniences are included in the next package release. Version `1.0.0`
-provides the low-level functions below; use this change's Git revision to try
-the new methods before that release.
+These conveniences require version `1.0.1` or later. Version `1.0.0` provides
+the low-level functions below.
 
 ### Low-level functions
 
