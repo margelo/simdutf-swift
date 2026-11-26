@@ -143,8 +143,7 @@ let decoded = encoded.base64DecodedBytes(options: SIMDUTF_BASE64_URL)
 otherwise multiple encodings can match. Detection does not establish the
 intended encoding or validate a payload after a BOM.
 
-These conveniences require version `1.0.1` or later. Version `1.0.0` provides
-the low-level functions below.
+These conveniences require version `1.0.1` or later.
 
 ### Low-level functions
 
@@ -157,12 +156,13 @@ type aliases and constants. See the
 [upstream API documentation](https://simdutf.github.io/simdutf/) for each function's
 buffer capacities, validity requirements, and error semantics.
 
-`simdutf_validate_utf8_with_counts` requires `UTF8` and reports the valid
-prefix's byte count, code point count, and UTF-16 length through its result and
-length helpers. With `UTF8` and `UTF16`, the `simdutf_convert_utf8_to_utf16*`
-replacement variants replace malformed UTF-8 subsequences with U+FFFD. Use
-`simdutf_utf16_length_from_utf8_with_replacement` to size the output and pass
-its result to a `_with_result` variant when converting the same bytes.
+The simdutf v9.5.0 update adds `simdutf_validate_utf8_with_counts`, which
+requires `UTF8`. Its result and length helpers report the valid prefix's byte
+count, code point count, and UTF-16 length. With `UTF8` and `UTF16`, the new
+`simdutf_convert_utf8_to_utf16*` replacement variants substitute U+FFFD for
+malformed UTF-8 subsequences. Use `simdutf_utf16_length_from_utf8_with_replacement`
+to size the output and pass its result to a `_with_result` variant when
+converting the same bytes.
 
 Pointers are borrowed for the duration of each call. Functions work on counted
 buffers and preserve embedded nulls. Counts and capacities must be nonnegative.
