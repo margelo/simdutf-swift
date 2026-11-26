@@ -20,6 +20,15 @@ public let SIMDUTF_ERROR_BASE64_EXTRA_BITS = CSimdUTF.SIMDUTF_ERROR_BASE64_EXTRA
 public let SIMDUTF_ERROR_OUTPUT_BUFFER_TOO_SMALL = CSimdUTF.SIMDUTF_ERROR_OUTPUT_BUFFER_TOO_SMALL
 public let SIMDUTF_ERROR_OTHER = CSimdUTF.SIMDUTF_ERROR_OTHER
 
+#if UTF8
+public typealias simdutf_utf8_result = CSimdUTF.simdutf_utf8_result
+#endif
+
+#if UTF8 && UTF16
+public typealias simdutf_utf8_to_utf16_result = CSimdUTF.simdutf_utf8_to_utf16_result
+public let SIMDUTF_UTF8_TO_UTF16_MAX_ERRORS = CSimdUTF.SIMDUTF_UTF8_TO_UTF16_MAX_ERRORS
+#endif
+
 #if DetectEncoding
 public typealias simdutf_encoding_type = CSimdUTF.simdutf_encoding_type
 public let SIMDUTF_ENCODING_UNSPECIFIED = CSimdUTF.SIMDUTF_ENCODING_UNSPECIFIED
@@ -65,6 +74,30 @@ public func simdutf_validate_utf8(_ buf: UnsafePointer<CChar>?, _ len: Int) -> B
 @inline(__always)
 public func simdutf_validate_utf8_with_errors(_ buf: UnsafePointer<CChar>?, _ len: Int) -> simdutf_result {
   CSimdUTF.simdutf_validate_utf8_with_errors(buf, len)
+}
+#endif
+
+#if (UTF8)
+@inlinable
+@inline(__always)
+public func simdutf_validate_utf8_with_counts(_ buf: UnsafePointer<CChar>?, _ len: Int) -> simdutf_utf8_result {
+  CSimdUTF.simdutf_validate_utf8_with_counts(buf, len)
+}
+#endif
+
+#if (UTF8)
+@inlinable
+@inline(__always)
+public func simdutf_utf8_result_utf16_length(_ r: simdutf_utf8_result) -> Int {
+  CSimdUTF.simdutf_utf8_result_utf16_length(r)
+}
+#endif
+
+#if (UTF8)
+@inlinable
+@inline(__always)
+public func simdutf_utf8_result_utf32_length(_ r: simdutf_utf8_result) -> Int {
+  CSimdUTF.simdutf_utf8_result_utf32_length(r)
 }
 #endif
 
@@ -284,6 +317,14 @@ public func simdutf_utf16_length_from_utf8(_ input: UnsafePointer<CChar>?, _ len
 }
 #endif
 
+#if (UTF8 && UTF16)
+@inlinable
+@inline(__always)
+public func simdutf_utf16_length_from_utf8_with_replacement(_ input: UnsafePointer<CChar>?, _ length: Int) -> simdutf_utf8_to_utf16_result {
+  CSimdUTF.simdutf_utf16_length_from_utf8_with_replacement(input, length)
+}
+#endif
+
 #if (UTF8 && UTF32)
 @inlinable
 @inline(__always)
@@ -425,6 +466,54 @@ public func simdutf_convert_utf8_to_utf16le(_ input: UnsafePointer<CChar>?, _ le
 @inline(__always)
 public func simdutf_convert_utf8_to_utf16(_ input: UnsafePointer<CChar>?, _ length: Int, _ output: UnsafeMutablePointer<UInt16>?) -> Int {
   CSimdUTF.simdutf_convert_utf8_to_utf16(input, length, output)
+}
+#endif
+
+#if (UTF8 && UTF16)
+@inlinable
+@inline(__always)
+public func simdutf_convert_utf8_to_utf16_with_replacement(_ input: UnsafePointer<CChar>?, _ length: Int, _ output: UnsafeMutablePointer<UInt16>?) -> Int {
+  CSimdUTF.simdutf_convert_utf8_to_utf16_with_replacement(input, length, output)
+}
+#endif
+
+#if (UTF8 && UTF16)
+@inlinable
+@inline(__always)
+public func simdutf_convert_utf8_to_utf16le_with_replacement(_ input: UnsafePointer<CChar>?, _ length: Int, _ output: UnsafeMutablePointer<UInt16>?) -> Int {
+  CSimdUTF.simdutf_convert_utf8_to_utf16le_with_replacement(input, length, output)
+}
+#endif
+
+#if (UTF8 && UTF16)
+@inlinable
+@inline(__always)
+public func simdutf_convert_utf8_to_utf16be_with_replacement(_ input: UnsafePointer<CChar>?, _ length: Int, _ output: UnsafeMutablePointer<UInt16>?) -> Int {
+  CSimdUTF.simdutf_convert_utf8_to_utf16be_with_replacement(input, length, output)
+}
+#endif
+
+#if (UTF8 && UTF16)
+@inlinable
+@inline(__always)
+public func simdutf_convert_utf8_to_utf16_with_replacement_with_result(_ input: UnsafePointer<CChar>?, _ length: Int, _ output: UnsafeMutablePointer<UInt16>?, _ locations: UnsafePointer<simdutf_utf8_to_utf16_result>) -> Int {
+  CSimdUTF.simdutf_convert_utf8_to_utf16_with_replacement_with_result(input, length, output, locations)
+}
+#endif
+
+#if (UTF8 && UTF16)
+@inlinable
+@inline(__always)
+public func simdutf_convert_utf8_to_utf16le_with_replacement_with_result(_ input: UnsafePointer<CChar>?, _ length: Int, _ output: UnsafeMutablePointer<UInt16>?, _ locations: UnsafePointer<simdutf_utf8_to_utf16_result>) -> Int {
+  CSimdUTF.simdutf_convert_utf8_to_utf16le_with_replacement_with_result(input, length, output, locations)
+}
+#endif
+
+#if (UTF8 && UTF16)
+@inlinable
+@inline(__always)
+public func simdutf_convert_utf8_to_utf16be_with_replacement_with_result(_ input: UnsafePointer<CChar>?, _ length: Int, _ output: UnsafeMutablePointer<UInt16>?, _ locations: UnsafePointer<simdutf_utf8_to_utf16_result>) -> Int {
+  CSimdUTF.simdutf_convert_utf8_to_utf16be_with_replacement_with_result(input, length, output, locations)
 }
 #endif
 

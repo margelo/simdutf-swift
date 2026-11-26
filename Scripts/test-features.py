@@ -17,6 +17,9 @@ DEFAULTS = {"UTF8", "UTF16"}
 # Tuple: required traits, public Swift/C function, upstream C++ function.
 PROBES = [
     ({"UTF8"}, "simdutf_validate_utf8_with_errors", "validate_utf8_with_errors"),
+    ({"UTF8"}, "simdutf_validate_utf8_with_counts", "validate_utf8_with_counts"),
+    ({"UTF8"}, "simdutf_utf8_result_utf16_length", None),
+    ({"UTF8"}, "simdutf_utf8_result_utf32_length", None),
     ({"UTF16"}, "simdutf_validate_utf16_with_errors", "validate_utf16_with_errors"),
     ({"UTF32"}, "simdutf_validate_utf32_with_errors", "validate_utf32_with_errors"),
     ({"ASCII"}, "simdutf_validate_ascii", "validate_ascii"),
@@ -26,6 +29,8 @@ PROBES = [
     ({"Latin1", "UTF16"}, "simdutf_convert_latin1_to_utf16", "convert_latin1_to_utf16"),
     ({"Latin1", "UTF32"}, "simdutf_convert_latin1_to_utf32", "convert_latin1_to_utf32"),
     ({"UTF8", "UTF16"}, "simdutf_convert_utf16_to_utf8_with_replacement", "convert_utf16_to_utf8_with_replacement"),
+    ({"UTF8", "UTF16"}, "simdutf_utf16_length_from_utf8_with_replacement", "utf16_length_from_utf8_with_replacement"),
+    ({"UTF8", "UTF16"}, "simdutf_convert_utf8_to_utf16_with_replacement_with_result", "convert_utf8_to_utf16_with_replacement"),
     ({"UTF8", "UTF32"}, "simdutf_convert_utf32_to_utf8", "convert_utf32_to_utf8"),
     ({"UTF16", "UTF32"}, "simdutf_convert_utf32_to_utf16", "convert_utf32_to_utf16"),
     ({"UTF8", "UTF16"}, "simdutf_swift_utf16_to_utf8", None),

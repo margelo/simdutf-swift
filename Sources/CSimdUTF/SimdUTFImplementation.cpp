@@ -4,12 +4,19 @@
 #include "SimdUTFConfig.h"
 
 #include "simdutf.h"
+// Overridden by kernels that must clear the upper vector state before calling
+// scalar code (see simdutf/haswell/begin.h).
+#define SIMDUTF_VZEROUPPER() (void)0
 
 #include "../../simdutf/src/encoding_types.cpp"
 #include "../../simdutf/src/error.cpp"
+#ifndef SIMDUTF_REGULAR_VISUAL_STUDIO
+SIMDUTF_DISABLE_UNUSED_WARNING
+#endif
 // The large tables should be included once and they
 // should not depend on a kernel.
 #include "../../simdutf/src/tables/utf8_to_utf16_tables.h"
+#include "../../simdutf/src/tables/utf8_to_latin1_tables.h"
 #include "../../simdutf/src/tables/utf16_to_utf8_tables.h"
 #include "../../simdutf/src/tables/utf32_to_utf16_tables.h"
 // End of tables.
@@ -19,9 +26,6 @@
 // only for peculiar build targets.
 
 // The best choice should always come first!
-#ifndef SIMDUTF_REGULAR_VISUAL_STUDIO
-SIMDUTF_DISABLE_UNUSED_WARNING
-#endif
 #include "../../simdutf/src/simdutf/arm64.h"
 #include "../../simdutf/src/simdutf/icelake.h"
 #include "../../simdutf/src/simdutf/haswell.h"
@@ -82,6 +86,7 @@ SIMDUTF_POP_DISABLE_WARNINGS
     (SIMDUTF_FEATURE_UTF16 || SIMDUTF_FEATURE_UTF32 || SIMDUTF_FEATURE_LATIN1)
   #include "simdutf/scalar/utf8_to_utf16/valid_utf8_to_utf16.h"
   #include "simdutf/scalar/utf8_to_utf16/utf8_to_utf16.h"
+  #include "simdutf/scalar/utf8_to_utf16/utf8_to_utf16_with_replacement.h"
 #endif // SIMDUTF_FEATURE_UTF8 && (SIMDUTF_FEATURE_UTF16 ||
        // SIMDUTF_FEATURE_UTF32 || SIMDUTF_FEATURE_LATIN1)
 

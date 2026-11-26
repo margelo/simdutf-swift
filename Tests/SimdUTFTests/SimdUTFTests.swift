@@ -36,6 +36,21 @@ final class SimdUTFTests: XCTestCase {
             XCTAssertEqual(simdutf_validate_utf8_with_errors($0.baseAddress, $0.count).count, 129)
         }
     }
+
+    func testUTF8ValidationCountsOnlyTheValidPrefix() {
+        let repetitions = 129
+        let prefix = String(repeating: "A\0é中😀", count: repetitions)
+        let invalid = bytes(prefix) + [CChar(bitPattern: 0xFF)] + bytes("é😀")
+        invalid.withUnsafeBufferPointer { input in
+            let result: simdutf_utf8_result = simdutf_validate_utf8_with_counts(input.baseAddress, input.count)
+            XCTAssertNotEqual(result.error, SIMDUTF_ERROR_SUCCESS)
+            XCTAssertEqual(result.input_count, prefix.utf8.count)
+            XCTAssertEqual(result.continuation_count, 6 * repetitions)
+            XCTAssertEqual(result.four_byte_count, repetitions)
+            XCTAssertEqual(simdutf_utf8_result_utf16_length(result), prefix.utf16.count)
+            XCTAssertEqual(simdutf_utf8_result_utf32_length(result), prefix.unicodeScalars.count)
+        }
+    }
     #endif
 
     #if UTF16
@@ -103,6 +118,40 @@ final class SimdUTFTests: XCTestCase {
         XCTAssertEqual(Array(output.prefix(count)), Array("�a\0�😀�".utf8))
         XCTAssertEqual(simdutf_swift_utf16_to_utf8(nil, 0, nil), 0)
         XCTAssertEqual(simdutf_swift_valid_utf8_to_utf16(nil, 0, nil), 0)
+    }
+
+    func testUTF8ToUTF16WithReplacementCanReuseErrorLocations() {
+        let malformed: [UInt8] = Array("A\0😀".utf8) + [0xE2, 0x82, 0x42]
+        let maxErrors = Int(SIMDUTF_UTF8_TO_UTF16_MAX_ERRORS)
+        for repetitions in [1, maxErrors + 1] {
+            let input = Array(repeating: malformed, count: repetitions).flatMap { $0 }
+            let expected = Array(String(decoding: input, as: UTF8.self).utf16)
+            input.map { CChar(bitPattern: $0) }.withUnsafeBufferPointer { source in
+                var locations: simdutf_utf8_to_utf16_result = simdutf_utf16_length_from_utf8_with_replacement(
+                    source.baseAddress, source.count
+                )
+                XCTAssertNotEqual(locations.error, SIMDUTF_ERROR_SUCCESS)
+                XCTAssertEqual(locations.count, expected.count)
+                XCTAssertEqual(locations.error_count, min(repetitions, maxErrors))
+                XCTAssertEqual(locations.error_offset.0, "A\0😀".utf8.count)
+                XCTAssertEqual(locations.more_errors, repetitions > maxErrors)
+
+                var output = [UInt16](repeating: 0, count: expected.count)
+                let written = output.withUnsafeMutableBufferPointer {
+                    simdutf_convert_utf8_to_utf16_with_replacement(source.baseAddress, source.count, $0.baseAddress)
+                }
+                XCTAssertEqual(written, expected.count)
+                XCTAssertEqual(output, expected)
+
+                let writtenBE = output.withUnsafeMutableBufferPointer {
+                    simdutf_convert_utf8_to_utf16be_with_replacement_with_result(
+                        source.baseAddress, source.count, $0.baseAddress, &locations
+                    )
+                }
+                XCTAssertEqual(writtenBE, expected.count)
+                XCTAssertEqual(output, expected.map(\.bigEndian))
+            }
+        }
     }
     #endif
 
