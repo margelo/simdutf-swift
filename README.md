@@ -157,6 +157,13 @@ type aliases and constants. See the
 [upstream API documentation](https://simdutf.github.io/simdutf/) for each function's
 buffer capacities, validity requirements, and error semantics.
 
+`simdutf_validate_utf8_with_counts` requires `UTF8` and reports the valid
+prefix's byte count, code point count, and UTF-16 length through its result and
+length helpers. With `UTF8` and `UTF16`, the `simdutf_convert_utf8_to_utf16*`
+replacement variants replace malformed UTF-8 subsequences with U+FFFD. Use
+`simdutf_utf16_length_from_utf8_with_replacement` to size the output and pass
+its result to a `_with_result` variant when converting the same bytes.
+
 Pointers are borrowed for the duration of each call. Functions work on counted
 buffers and preserve embedded nulls. Counts and capacities must be nonnegative.
 Allocate sufficient output capacity before
@@ -185,8 +192,8 @@ APIs, including experimental atomic Base64 operations, are outside the Swift API
 
 ## Optimization and distribution
 
-The package ships **source**, pinned to simdutf **v9.2.1**
-(`dc3f7a8fa291f2ce793c7b0ddd458f4e67542f14`). SwiftPM fetches the pinned submodule
+The package ships **source**, pinned to simdutf **v9.5.0**
+(`9064366fa571fac03bcd28db35af597e97fba842`). SwiftPM fetches the pinned submodule
 when resolving a Git dependency. Source distribution lets each consumer compile
 its selected features for its platform and toolchain. A precompiled framework
 would bake in a feature set and require separate platform/architecture builds.

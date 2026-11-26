@@ -1,8 +1,8 @@
 The Swift package and compatibility helpers are Copyright (c) 2026 Margelo,
 licensed under the MIT License in LICENSE.
 
-simdutf is included as an unchanged Git submodule, pinned to v9.2.1:
-dc3f7a8fa291f2ce793c7b0ddd458f4e67542f14
+simdutf is included as an unchanged Git submodule, pinned to v9.5.0:
+9064366fa571fac03bcd28db35af597e97fba842
 https://github.com/simdutf/simdutf
 
 simdutf is Copyright (c) 2021 The simdutf authors, available under either
