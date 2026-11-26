@@ -496,7 +496,7 @@ public func simdutf_convert_utf8_to_utf16be_with_replacement(_ input: UnsafePoin
 #if (UTF8 && UTF16)
 @inlinable
 @inline(__always)
-public func simdutf_convert_utf8_to_utf16_with_replacement_with_result(_ input: UnsafePointer<CChar>?, _ length: Int, _ output: UnsafeMutablePointer<UInt16>?, _ locations: UnsafePointer<simdutf_utf8_to_utf16_result>?) -> Int {
+public func simdutf_convert_utf8_to_utf16_with_replacement_with_result(_ input: UnsafePointer<CChar>?, _ length: Int, _ output: UnsafeMutablePointer<UInt16>?, _ locations: UnsafePointer<simdutf_utf8_to_utf16_result>) -> Int {
   CSimdUTF.simdutf_convert_utf8_to_utf16_with_replacement_with_result(input, length, output, locations)
 }
 #endif
@@ -504,7 +504,7 @@ public func simdutf_convert_utf8_to_utf16_with_replacement_with_result(_ input: 
 #if (UTF8 && UTF16)
 @inlinable
 @inline(__always)
-public func simdutf_convert_utf8_to_utf16le_with_replacement_with_result(_ input: UnsafePointer<CChar>?, _ length: Int, _ output: UnsafeMutablePointer<UInt16>?, _ locations: UnsafePointer<simdutf_utf8_to_utf16_result>?) -> Int {
+public func simdutf_convert_utf8_to_utf16le_with_replacement_with_result(_ input: UnsafePointer<CChar>?, _ length: Int, _ output: UnsafeMutablePointer<UInt16>?, _ locations: UnsafePointer<simdutf_utf8_to_utf16_result>) -> Int {
   CSimdUTF.simdutf_convert_utf8_to_utf16le_with_replacement_with_result(input, length, output, locations)
 }
 #endif
@@ -512,7 +512,7 @@ public func simdutf_convert_utf8_to_utf16le_with_replacement_with_result(_ input
 #if (UTF8 && UTF16)
 @inlinable
 @inline(__always)
-public func simdutf_convert_utf8_to_utf16be_with_replacement_with_result(_ input: UnsafePointer<CChar>?, _ length: Int, _ output: UnsafeMutablePointer<UInt16>?, _ locations: UnsafePointer<simdutf_utf8_to_utf16_result>?) -> Int {
+public func simdutf_convert_utf8_to_utf16be_with_replacement_with_result(_ input: UnsafePointer<CChar>?, _ length: Int, _ output: UnsafeMutablePointer<UInt16>?, _ locations: UnsafePointer<simdutf_utf8_to_utf16_result>) -> Int {
   CSimdUTF.simdutf_convert_utf8_to_utf16be_with_replacement_with_result(input, length, output, locations)
 }
 #endif

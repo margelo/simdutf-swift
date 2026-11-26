@@ -113,7 +113,11 @@ def swift_type(source: str) -> str:
         "void": "Void",
     }.get(base, base)
     if pointer:
-        return f"Unsafe{'Mutable' if mutable else ''}Pointer<{base}>?"
+        pointer_type = f"Unsafe{'Mutable' if mutable else ''}Pointer<{base}>"
+        # The _with_result conversions read the result even for empty input.
+        if base == "simdutf_utf8_to_utf16_result" and not mutable:
+            return pointer_type
+        return f"{pointer_type}?"
     return base
 
 
